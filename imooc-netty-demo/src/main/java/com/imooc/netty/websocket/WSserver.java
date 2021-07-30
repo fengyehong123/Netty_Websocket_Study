@@ -19,7 +19,7 @@ public class WSserver {
 			// 主动线程放到启动类中,开启Channel,并且制定相应的助手处理类
 			serverBootstrap.group(mainGroup, subGroup)
 							.channel(NioServerSocketChannel.class)
-							.childHandler(null);
+							.childHandler(new WSServerInitialzer());
 		} finally {
 			
 			// 关闭主从线程

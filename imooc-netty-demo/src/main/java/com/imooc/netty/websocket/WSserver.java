@@ -1,6 +1,7 @@
 package com.imooc.netty.websocket;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
@@ -20,6 +21,15 @@ public class WSserver {
 			serverBootstrap.group(mainGroup, subGroup)
 							.channel(NioServerSocketChannel.class)
 							.childHandler(new WSServerInitialzer());
+			
+			/**
+			 * 启动Server,并且设置8088为启动的端口号,同时启动方式为同步
+			 */
+			ChannelFuture channelFuture = serverBootstrap.bind(8088).sync();
+			/**
+			 * 监听该关闭的channel,设置为同步方式
+			 */
+			channelFuture.channel().closeFuture().sync();
 		} finally {
 			
 			// 关闭主从线程

@@ -6,15 +6,43 @@
     <title></title>
     <script src="js/mui.min.js"></script>
     <link href="css/mui.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="fontico/iconfont.css" />
     <link rel="stylesheet" href="css/header.css" />
     <script type="text/javascript" charset="utf-8">
     	// 初始化 mui的相关配置
-      	mui.init();
+    	mui.init();
+    	
+    	// 当mui全部加载完成之后,可以对内部的组件进行修改
+    	mui.plusReady(function() {
+    		// 设置字体颜色
+    		plus.navigator.setStatusBarStyle("light");
+    		// 修改导航栏的背景颜色
+    		plus.navigator.setStatusBarBackground("#C9394A");
+    	});
     </script>
 </head>
 <body>
 	<header class="mui-bar mui-bar-nav title"> 
 	    <h1 class="mui-title title-color"><b>慕信</b></h1>
 	</header>
+	
+	<nav class="mui-bar mui-bar-tab">
+	    <a class="mui-tab-item mui-active">
+	        <span class="mui-icon iconfont icon-fire"></span>
+	        <span class="mui-tab-label">慕信</span>
+	    </a>
+	    <a class="mui-tab-item">
+	        <span class="mui-icon iconfont icon-tongxunlu"></span>
+	        <span class="mui-tab-label">通讯录</span>
+	    </a>
+	    <a class="mui-tab-item">
+	        <span class="mui-icon iconfont icon-zhinanzhen1"></span>
+	        <span class="mui-tab-label">发现</span>
+	    </a>
+	    <a class="mui-tab-item">
+	        <span class="mui-icon iconfont icon-wode-active"></span>
+	        <span class="mui-tab-label">我</span>
+	    </a>
+	</nav>
 </body>
 </html>

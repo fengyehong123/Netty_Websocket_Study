@@ -5,3 +5,7 @@
 .title-color {
 	color: white;
 }
+/*当选项卡被选中的时候,图标显示出的颜色*/
+.mui-bar-tab .mui-tab-item.mui-active {
+	color: #c9394a;
+}

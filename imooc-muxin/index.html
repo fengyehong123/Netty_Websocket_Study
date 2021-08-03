@@ -27,22 +27,85 @@
 	</header>
 	
 	<nav class="mui-bar mui-bar-tab">
-	    <a class="mui-tab-item mui-active">
+	    <a class="mui-tab-item mui-active" tabindex="0">
 	        <span class="mui-icon iconfont icon-fire"></span>
 	        <span class="mui-tab-label">慕信</span>
 	    </a>
-	    <a class="mui-tab-item">
+	    <a class="mui-tab-item" tabindex="1">
 	        <span class="mui-icon iconfont icon-tongxunlu"></span>
 	        <span class="mui-tab-label">通讯录</span>
 	    </a>
-	    <a class="mui-tab-item">
+	    <a class="mui-tab-item" tabindex="2">
 	        <span class="mui-icon iconfont icon-zhinanzhen1"></span>
 	        <span class="mui-tab-label">发现</span>
 	    </a>
-	    <a class="mui-tab-item">
+	    <a class="mui-tab-item" tabindex="3">
 	        <span class="mui-icon iconfont icon-wode-active"></span>
 	        <span class="mui-tab-label">我</span>
 	    </a>
 	</nav>
 </body>
+<script type="text/javascript">
+	// 定义子页面和子页面URL的数组
+	const muxinArray = [
+		{
+			pageId: 'imooc-chatlist.html',
+			pageUrl: 'imooc-chatlist.html'
+		},
+		{
+			pageId: 'imooc-contact.html',
+			pageUrl: 'imooc-contact.html'
+		},
+		{
+			pageId: 'imooc-discover.html',
+			pageUrl: 'imooc-discover.html'
+		},
+		{
+			pageId: 'imooc-me.html',
+			pageUrl: 'imooc-me.html'
+		}
+	];
+	
+	// 子页面的样式
+	let muxinStyle = {
+		top: '44px',
+		bottom: '50px'
+	}
+	
+	// 当设备加载完成之后,触发进行加载
+	mui.plusReady(function() {
+		
+		// 获取当前窗口的WebviewObject对象
+		let indexWebview = plus.webview.currentWebview();
+		
+		// 向当前主页的webview追加子页面的4张webview对象
+		for(const [,value] of muxinArray.entries()){
+			// 添加webview对象,每创建一个webview之后,会返回一个创建好的对象
+			let muxinPage = plus.webview.create(value.pageUrl, value.pageId, muxinStyle);
+			// 页面创建好之后,不可能都显示出来,需要隐藏
+			muxinPage.hide();
+			// 追加每一个子页面到当前的主页面
+			indexWebview.append(muxinPage);
+		}
+		
+		// 我们隐藏了所有的页面,但是默认显示第一个页面,所以要手动指定第一个页面是要显示的
+		plus.webview.show(muxinArray[0].pageId);
+		
+		// 批量绑定tap(手指触摸屏幕按钮)事件,展示不同的页面.我们给.mui-bar-tab中的a标签绑定了tap事件
+		mui('.mui-bar-tab').on('tap', 'a', function() {
+			// 获取当前a标签上的自定义属性
+			let tabindex = this.getAttribute("tabindex");
+			
+			// 显示点击的tab选项所对应的页面
+			plus.webview.show(muxinArray[tabindex].pageId, "fade-in", 200);
+			
+			// 将非触摸的页面进行隐藏
+			for(const [index, value] of muxinArray.entries()){
+				if(index != tabindex) {
+					plus.webview.hide(muxinArray[index].pageId, "fade-out", 200);
+				}
+			}
+		})
+	})
+</script>
 </html>

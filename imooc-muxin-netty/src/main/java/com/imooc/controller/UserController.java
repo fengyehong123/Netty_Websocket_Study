@@ -1,6 +1,7 @@
 package com.imooc.controller;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.imooc.pojo.Users;
+import com.imooc.pojo.vo.UsersVO;
 import com.imooc.service.UserService;
 import com.imooc.utils.IMoocJSONResult;
 import com.imooc.utils.MD5Utils;
@@ -50,9 +52,17 @@ public class UserController {
 			user.setFaceImageBig("");
 			// 密码经过MD5加密
 			user.setPassword(MD5Utils.getMD5Str(user.getPassword()));
+			userResult = userservice.saveUser(user);
 		}
 		
+		/**
+		 * userResult对象里面有很多前端用不到的信息,例如密码等字段
+		 * 我们重新定义一个 UsersVO类(不包含密码等字段),将userResult中的信息拷贝到UsersVO类中
+		 */
+		UsersVO usersVO = new UsersVO();
+		BeanUtils.copyProperties(userResult, usersVO);
 		
-		return IMoocJSONResult.ok();
+		// 将登录注册成功的用户信息返回给前端
+		return IMoocJSONResult.ok(usersVO);
 	}
 }

@@ -83,8 +83,53 @@
 		let password = document.querySelector("#txt_password");
 		
 		// 监听表单提交事件
-		userform.addEventListener("submit", function() {
+		userform.addEventListener("submit", function(e) {
+			// 判断用户名是否为空,如果为空则让其获取焦点
+			if(!app.isNotNull(username.value)) {
+				// 用户名输入框获取焦点
+				username.focus();
+			} else if(!window.app.isNotNull(password.value)) {
+				// 密码输入框获取焦点
+				password.focus();
+			} else {
+				if(username.value.length > 12) {
+					// 使用我们自定义的弹出框进行警告提示
+					app.showToast("用户名长度不能超过12位", "error");
+					return false;  
+				} else if(password.value.length > 12) {
+					app.showToast("密码长度不能超过12位", "error");
+					return false;
+				}
+				
+				// 获取每一台手机唯一的cid(用作每一台设备的唯一标识符)
+				const cid = plus.push.getClientInfo().clientid;
+				// 与后端联调,向后端发送消息
+				mui.ajax(app.serverUrl + "/u/registOrLogin",{
+					// 准备发送到后端的数据
+					data:{
+						username: username.value,
+						password: password.value,
+						cid: cid
+					},
+					dataType:'json',//服务器返回json格式数据
+					type:'post',//HTTP请求类型
+					timeout:10000,//超时时间设置为10秒；
+					headers:{'Content-Type':'application/json'},
+					success:function(data){
+						//服务器返回响应，根据响应结果，分析是否登录成功；
+						console.log(JSON.stringify(data));
+					},
+					error:function(xhr,type,errorThrown){
+						// 异常处理；
+						console.log(type);
+						console.log(errorThrown);
+						console.log(xhr);
+					}
+				});
+			}
 			
+			// 阻止表单提交的默认事件
+			e.preventDefault();
 		});
 	})
 </script>

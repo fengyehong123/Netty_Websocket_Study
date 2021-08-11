@@ -76,6 +76,16 @@
 <script type="text/javascript" src="js/app.js" ></script>
 <script type="text/javascript">
 	mui.plusReady(function() {
+		
+		/**
+		 * 判断用户是否注册登录过,如果手机APP中有全局的用户对象,此时免登陆直接跳转到首页
+		 */
+		let userInfo = app.getUserGlobalInfo();
+		if(userInfo != null) {
+			// 页面跳转
+			mui.openWindow("index.html", "index.html");
+		}
+		
 		// 获取表单对象
 		let userform = document.querySelector("#userform");
 		// 获取用户名和密码
@@ -115,12 +125,33 @@
 					type:'post',//HTTP请求类型
 					timeout:10000,//超时时间设置为10秒；
 					headers:{'Content-Type':'application/json'},
+					// 服务器成功响应之后的处理
 					success:function(data){
 						//服务器返回响应，根据响应结果，分析是否登录成功；
 						console.log(JSON.stringify(data));
+						
+						// 让输入框失去焦点
+						username.blur();
+						password.blur();
+						
+						if(data.status == 200) {
+							// 登录或者注册成功之后,保存全局用户对象到本地缓存
+							let userInfoJson = data.data;
+							app.setUserGlobalInfo(userInfoJson);
+							
+							/**
+							 * 登录成功之后进行页面跳转
+							 * 参数1: 页面url
+							 * 参数2: 页面唯一id(我们暂定和页面url相同)
+							 */
+							mui.openWindow("index.html", "index.html");
+						} else {
+							// 当登录失败的时候,通过弹窗展示失败提示信息
+							app.showToast(data.msg, "error");
+						}
 					},
+					// 异常处理
 					error:function(xhr,type,errorThrown){
-						// 异常处理；
 						console.log(type);
 						console.log(errorThrown);
 						console.log(xhr);

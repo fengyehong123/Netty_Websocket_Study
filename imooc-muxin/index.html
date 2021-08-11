@@ -75,6 +75,16 @@
 	// 当设备加载完成之后,触发进行加载
 	mui.plusReady(function() {
 		
+		/**
+		 * 禁止返回到登录注册页面
+		 * mui.back()是mui自带的回退方法,在安卓手机上,由于存在回退按钮
+		 * 所以当我们从login登录画面登录成功进入index页面的时候,可以通过按下实体的回退键返回到登录画面
+		 * 这种体验不好.因此我们重写mui的back方法,相当于在此处将回退功能禁用掉
+		 */
+		mui.back = function() {
+			return false;
+		}
+		
 		// 获取当前窗口的WebviewObject对象
 		let indexWebview = plus.webview.currentWebview();
 		

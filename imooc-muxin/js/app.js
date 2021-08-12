@@ -7,6 +7,11 @@
  	 */
  	serverUrl: 'http://192.168.31.66:8080',
  	
+ 	/**
+ 	 * 图片服务器的地址
+ 	 */
+ 	imageServerUrl: '',
+ 	
  	// 判断字符串是否为空
  	isNotNull: function(str) {
  		if(str != null && str != undefined && str != "") {

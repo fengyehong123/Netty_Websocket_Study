@@ -145,6 +145,13 @@
 					"index.html"
 				],
 				"priority": 0
+			},
+			"imooc-me.html": {
+				"resources": [],
+				"refer": [
+					"myface.html"
+				],
+				"priority": 0
 			}
 		},
 		"idle": {

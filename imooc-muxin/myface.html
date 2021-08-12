@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<link href="css/mui.min.css" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css" href="css/header.css" />
+</head>
+
+<body>
+	<!--带返回箭头的header-->
+	<header class="mui-bar mui-bar-nav title">
+	    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" style="color: white;"></a>
+	    <a id="openMenu" class="mui-icon mui-icon-right-nav mui-pull-right" style="color: white;">...</a>
+	    <h1 class="mui-title title-color">个人头像</h1>
+	</header>
+	
+	<!--图片区域-->
+	<div class="mui-content">
+	    <img id="img_myface" src="image/face-default-cat.png"/>
+	</div>
+	
+	<!--菜单区域-->
+	<div id="sheet-myface" class="mui-popover mui-popover-bottom mui-popover-action">
+	    <!-- 可选择菜单 -->
+	    <ul class="mui-table-view">
+	      <li class="mui-table-view-cell">
+	        <a id="link_choosePhoto" href="#">选择照片</a>
+	      </li>
+	      <li class="mui-table-view-cell">
+	        <a id="link_savePhoto" href="#">下载照片</a>
+	      </li>
+	    </ul>
+	    <!-- 取消菜单 -->
+	    <ul class="mui-table-view">
+	      <li class="mui-table-view-cell">
+	      	<!--将取消的id设置为进而菜单区域的id相同的话,可以实现取消菜单显示的功能-->
+	        <a href="#sheet-myface"><b>取消</b></a>
+	      </li>
+	    </ul>
+	</div>
+	
+</body>
+<script src="js/mui.min.js"></script>
+<script src="js/app.js"></script>
+<script type="text/javascript">
+	mui.init();
+	
+	mui.plusReady(function() {
+		// 获取用户的全局对象
+		const user = app.getUserGlobalInfo();
+		let img_myface = document.querySelector("#img_myface");
+		
+		if(user != null) {
+			// 获取用户的头像并设置到图片标签中
+			const faceImage = user.faceImage;
+			if(app.isNotNull(faceImage)) {
+				// 从图片服务器获取头像的url地址,设置到图片区域展示
+				img_myface.src = app.imageServerUrl + faceImage;
+			}
+		}
+		
+		// 获取手机端可见屏幕的宽度
+		let imgWidth = document.body.clientWidth;
+		// 将图片的宽度大小设置为手机端可见屏幕宽高度的大小
+		img_myface.width = imgWidth;
+		img_myface.height = imgWidth;
+		
+		// 绑定选择菜单
+		let openMenu = document.querySelector("#openMenu");
+		openMenu.addEventListener("tap", function() {
+			mui("#sheet-myface").popover("toggle");
+		}); 
+		
+		// 绑定选择照片的按钮事件
+		let link_choosePhoto = document.querySelector("#link_choosePhoto");
+		// 绑定下载照片的按钮事件
+		let link_savePhoto = document.querySelector("#link_savePhoto");
+	});
+</script>
+</html>

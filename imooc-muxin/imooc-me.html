@@ -89,8 +89,21 @@
 					mui.openWindow("myface.html", "myface.html");
 				}); 
 				
+				// 添加自定义事件,刷新头像
+				window.addEventListener("refresh", function() {
+					/**
+					 * 刷新当前界面,我们自定义了一个refresh事件
+					 * 当头像上传成功之后,会在头像上传成功的界面添加refresh事件
+					 * 我们在用户界面监听此事件,当监听到这个事件说明用户上传头像成功,
+					 * 然后会调用刷新当前界面的函数
+					 */
+					refreshUserInfo();
+				});
 			});
 			
+			/**
+			 * 刷新用户信息的函数
+			 */
 			function refreshUserInfo() {
 				// 获取全局的user信息对象,并且解构出相关user信息
 				const user = app.getUserGlobalInfo();

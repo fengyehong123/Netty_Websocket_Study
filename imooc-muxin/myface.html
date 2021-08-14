@@ -54,10 +54,11 @@
 		
 		if(user != null) {
 			// 获取用户的头像并设置到图片标签中
-			const faceImage = user.faceImage;
+			const faceImage = user.faceImageBig;
 			if(app.isNotNull(faceImage)) {
 				// 从图片服务器获取头像的url地址,设置到图片区域展示
 				img_myface.src = app.imageServerUrl + faceImage;
+				console.log(app.imageServerUrl + faceImage);
 			}
 		}
 		

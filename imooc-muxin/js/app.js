@@ -1,16 +1,16 @@
  window.app = {
  	
  	/**
- 	 * 后端服务器的IP地址
+ 	 * 后端Netty服务器的IP地址
  	 * 注意:使用本机电脑当做服务器,然后用手机APP访问的时候,由于是内网,要保证手机和电脑同时连接WIFI
  	 * 然后使用WIFI网卡的IP地址进行连接
  	 */
  	serverUrl: 'http://192.168.31.66:8080',
  	
  	/**
- 	 * 图片服务器的地址
+ 	 * 图片服务器FastDFS的地址(虚拟机CentOS6)
  	 */
- 	imageServerUrl: '',
+ 	imageServerUrl: 'http://192.168.118.130/group1/',
  	
  	// 判断字符串是否为空
  	isNotNull: function(str) {

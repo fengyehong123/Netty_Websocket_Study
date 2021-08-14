@@ -75,8 +75,18 @@
 		
 		// 绑定选择照片的按钮事件
 		let link_choosePhoto = document.querySelector("#link_choosePhoto");
+		link_choosePhoto.addEventListener("tap", function() {
+			// 点击选择照片按钮的时候,打开一个新的页面,在该页面上选择照片
+			mui.openWindow("plugin/v3.1.6/myface-uploader.html", "myface-uploader.html");
+			// 打开新页面的时候,将原有的页面关闭
+			mui("#sheet-myface").popover("toggle");
+		});
+		
 		// 绑定下载照片的按钮事件
 		let link_savePhoto = document.querySelector("#link_savePhoto");
+		link_savePhoto.addEventListener("tap", function() {
+			
+		});
 	});
 </script>
 </html>

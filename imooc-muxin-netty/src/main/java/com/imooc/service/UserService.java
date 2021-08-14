@@ -12,4 +12,7 @@ public interface UserService {
 	
 	// 用户注册
 	public Users saveUser(Users user);
+	
+	// 修改用户的信息
+	public Users updateUserInfo(Users user);
 }

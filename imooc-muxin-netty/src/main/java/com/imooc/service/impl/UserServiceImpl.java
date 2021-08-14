@@ -69,5 +69,18 @@ public class UserServiceImpl implements UserService {
 		// 将user信息返回给前端
 		return user;
 	}
-
+	
+	// 更新用户的信息
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public Users updateUserInfo(Users user) {
+		
+		userMapper.updateByPrimaryKeySelective(user);
+		return queryUserById(user.getId());
+	}
+	
+	@Transactional(propagation = Propagation.SUPPORTS)
+	private Users queryUserById(String userId) {
+		return userMapper.selectByPrimaryKey(userId);
+	}
 }

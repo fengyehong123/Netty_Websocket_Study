@@ -74,6 +74,12 @@ public class UserController {
 		return IMoocJSONResult.ok(usersVO);
 	}
 	
+	/**
+	 * 上传用户头像到图片服务器
+	 * @param userBo
+	 * @return
+	 * @throws Exception
+	 */
 	@PostMapping("/uploadFaceBase64")
 	public IMoocJSONResult uploadFaceBase64(@RequestBody UsersBO userBo) throws Exception {
 		
@@ -102,8 +108,26 @@ public class UserController {
 		user.setId(userBo.getUserId());
 		user.setFaceImage(thumpImgUrl);
 		user.setFaceImageBig(url);
-		Users updateUserInfo = userservice.updateUserInfo(user);
+		Users result = userservice.updateUserInfo(user);
 		
-		return IMoocJSONResult.ok(updateUserInfo);
+		return IMoocJSONResult.ok(result);
+	}
+	
+	/**
+	 * 修改用户昵称
+	 * @param userBo
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping("/setNickname")
+	public IMoocJSONResult setNickname(@RequestBody UsersBO userBo) throws Exception {
+		
+		// 更新用户的昵称
+		Users user = new Users();
+		user.setId(userBo.getUserId());
+		user.setNickname(userBo.getNickname());
+		Users result = userservice.updateUserInfo(user);
+		
+		return IMoocJSONResult.ok(result);
 	}
 }

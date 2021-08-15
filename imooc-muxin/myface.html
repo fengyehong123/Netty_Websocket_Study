@@ -48,19 +48,15 @@
 	mui.init();
 	
 	mui.plusReady(function() {
-		// 获取用户的全局对象
-		const user = app.getUserGlobalInfo();
-		let img_myface = document.querySelector("#img_myface");
 		
-		if(user != null) {
-			// 获取用户的头像并设置到图片标签中
-			const faceImage = user.faceImageBig;
-			if(app.isNotNull(faceImage)) {
-				// 从图片服务器获取头像的url地址,设置到图片区域展示
-				img_myface.src = app.imageServerUrl + faceImage;
-				console.log(app.imageServerUrl + faceImage);
-			}
-		}
+		// 当进入此页面的时候,刷新用户的头像
+		refreshFace();
+		
+		// 监听自定义事件,如果监听到我们自定义的refresh事件,就触发下面回调函数
+		window.addEventListener("refresh", function() {
+			
+			refreshFace();
+		});
 		
 		// 获取手机端可见屏幕的宽度
 		let imgWidth = document.body.clientWidth;
@@ -78,7 +74,11 @@
 		let link_choosePhoto = document.querySelector("#link_choosePhoto");
 		link_choosePhoto.addEventListener("tap", function() {
 			// 点击选择照片按钮的时候,打开一个新的页面,在该页面上选择照片
-			mui.openWindow("plugin/v3.1.6/myface-uploader.html", "myface-uploader.html");
+			mui.openWindow({
+				url: "plugin/v3.1.6/myface-uploader.html", 
+				id: "myface-uploader.html",
+				createNew: true
+			});
 			// 打开新页面的时候,将原有的页面关闭
 			mui("#sheet-myface").popover("toggle");
 		});
@@ -87,7 +87,65 @@
 		let link_savePhoto = document.querySelector("#link_savePhoto");
 		link_savePhoto.addEventListener("tap", function() {
 			
+			// 下载文件需要耗时,因此加入一个加载框
+			plus.nativeUI.showWaiting("下载中...");
+			
+			// 获取用户相关信息
+			const user = app.getUserGlobalInfo();
+			const faceImage = user.faceImageBig;
+			
+			// 创建一个下载任务(只是创建任务了一个任务对象,并没有进行下载)
+			let taskObj = plus.downloader.createDownload(
+				// 需要下载的图片的url
+				app.imageServerUrl + faceImage,
+				{
+					
+				},
+				// 回调函数
+				function(downloadFile, status) {
+					// 关闭加载等待框
+					plus.nativeUI.closeWaiting();
+					if(status == 200) {
+						
+						/**
+						 * 获取临时的下载文件
+						 * 此时的文件只是一个临时的文件,必须调用相册的api才能把临时文件保存到本地
+						 */
+						let tempFile = downloadFile.filename;
+						
+						// 通过相册api保存照片到本次相册
+						plus.gallery.save(tempFile, function() {
+							app.showToast("保存照片成功!", "success")
+						});
+						
+					} else {
+						app.showToast("下载错误...", "error");
+						console.log("下载错误...");
+					}
+				}
+			);
+			// 开始进行下载,启动下载任务
+			taskObj.start();
 		});
 	});
+	
+	/**
+	 * 刷新头像,当用户上传好图片之后,又进入该页面的时候,清除缓存,显示最新上传的头像
+	 */
+	function refreshFace() {
+		// 获取用户的全局对象
+		const user = app.getUserGlobalInfo();
+		let img_myface = document.querySelector("#img_myface");
+		
+		if(user != null) {
+			// 获取用户的头像并设置到图片标签中
+			const faceImage = user.faceImageBig;
+			if(app.isNotNull(faceImage)) {
+				// 从图片服务器获取头像的url地址,设置到图片区域展示
+				img_myface.src = app.imageServerUrl + faceImage;
+				console.log(app.imageServerUrl + faceImage);
+			}
+		}
+	}
 </script>
 </html>

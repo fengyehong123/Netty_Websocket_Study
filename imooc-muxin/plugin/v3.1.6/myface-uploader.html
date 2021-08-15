@@ -103,6 +103,7 @@
 								plus.nativeUI.closeWaiting();
 								
 								if (data.status == 200) {
+									
 									// 获取后端返回给前端的信息,上传成功的图片的地址等
 									const userInfo = data.data;
 									// 将用户的新信息(头像,昵称等保存到全局对象中)
@@ -113,6 +114,13 @@
 									// mui自带了触发自定义事件的方法.fire()
 									// 参数1:Webview页面对象 参数2:自定义事件的名称
 									mui.fire(imooc_meWebview, "refresh");
+									
+									/**
+									 * 文件上传成功之后,需要同时刷新两个页面的缓存信息,如果不刷新的话,当我们进入的时候,还是显示之前的旧头像
+									 * 一个imooc-me.html页面,另一个myface.html页面
+									 */
+									let myface_Webview = plus.webview.getWebviewById("myface.html");
+									mui.fire(myface_Webview, "refresh");
 									
 									// 页面跳转
 									mui.openWindow("index.html", "index.html");

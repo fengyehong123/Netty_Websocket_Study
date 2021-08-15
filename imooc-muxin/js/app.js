@@ -5,12 +5,12 @@
  	 * 注意:使用本机电脑当做服务器,然后用手机APP访问的时候,由于是内网,要保证手机和电脑同时连接WIFI
  	 * 然后使用WIFI网卡的IP地址进行连接
  	 */
- 	serverUrl: 'http://192.168.31.66:8080',
+ 	serverUrl: 'http://192.168.31.100:8080',
  	
  	/**
  	 * 图片服务器FastDFS的地址(虚拟机CentOS6)
  	 */
- 	imageServerUrl: 'http://192.168.118.130/group1/',
+ 	imageServerUrl: 'http://192.168.31.5/group1/',
  	
  	// 判断字符串是否为空
  	isNotNull: function(str) {

@@ -12,14 +12,15 @@
 	<!--带返回箭头的header-->
 	<header class="mui-bar mui-bar-nav title">
 	    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" style="color: white;"></a>
-	    <a id="openMenu" class="mui-icon mui-icon-right-nav mui-pull-right" style="color: white;font-size: 14px;line-height: 25px;">完成</a>
+	    <a id="link_submit_nickname" class="mui-icon mui-icon-right-nav mui-pull-right" 
+	    	style="color: white;font-size: 14px;line-height: 25px;">完成</a>
 	    <h1 class="mui-title title-color">设置昵称</h1>
 	</header>
 	
 	<!--图片区域-->
 	<div class="mui-content">
 		<div class="mui-input-row">
-		    <input type="text" class="mui-input-speech mui-input-clear" placeholder="修改昵称">
+		    <input id="txt_nickname" type="text" class="mui-input-speech mui-input-clear" placeholder="修改昵称">
 		</div>
 		
 	</div>
@@ -32,6 +33,73 @@
 	
 	mui.plusReady(function() {
 		
+		let user = app.getUserGlobalInfo();
+		let mynickname = user.nickname;
+		
+		let txt_nickname = document.getElementById("txt_nickname");
+		txt_nickname.value = mynickname;
+		
+		// 提交事件,修改昵称
+		const link_submit_nickname = document.getElementById("link_submit_nickname");
+		link_submit_nickname.addEventListener("tap", function() {
+			
+			// 获取新的昵称
+			const newNickname = txt_nickname.value;
+			
+			if(newNickname.length < 1) {
+				app.showToast("昵称长度太短", "error");
+				return false;
+			}
+			
+			if(newNickname.length > 8) {
+				app.showToast("昵称不能超过8位", "error");
+				return false;
+			}
+			
+			plus.nativeUI.showWaiting("请稍等...");
+			
+			mui.ajax(app.serverUrl + "/u/setNickname",{
+				// 准备发送到后端的数据
+				data:{
+					userId: user.id,
+					nickname: newNickname
+				},
+				dataType:'json',//服务器返回json格式数据
+				type:'post',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				headers:{'Content-Type':'application/json'},
+				// 服务器成功响应之后的处理
+				success:function(data){
+					
+					plus.nativeUI.closeWaiting();
+					
+					if(data.status == 200) {
+						// 登录或者注册成功之后,保存全局用户对象到本地缓存
+						let userInfoJson = data.data;
+						app.setUserGlobalInfo(userInfoJson);
+						
+						// 触发另外一个webview的自定义事件,可以使用mui.fire()
+						let imooc_meWebview = plus.webview.getWebviewById("imooc-me.html");
+						// mui自带了触发自定义事件的方法.fire()
+						// 参数1:Webview页面对象 参数2:自定义事件的名称
+						mui.fire(imooc_meWebview, "refresh");
+						
+						// 页面跳转,回到上一个页面
+						mui.back();
+						
+					} else {
+						// 当登录失败的时候,通过弹窗展示失败提示信息
+						app.showToast(data.msg, "error");
+					}
+				},
+				// 异常处理
+				error:function(xhr,type,errorThrown){
+					console.log(type);
+					console.log(errorThrown);
+					console.log(xhr);
+				}
+			});
+		})
 	});
 </script>
 </html>

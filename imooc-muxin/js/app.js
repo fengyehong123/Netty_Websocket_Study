@@ -44,4 +44,10 @@
  		// 将app缓存中的用户信息字符串反序列化为一个对象
  		return JSON.parse(plus.storage.getItem("userInfo"));
  	}
+ 	/**
+ 	 * 清空登录的用户信息缓存
+ 	 */
+ 	userLogout: function() {
+ 		plus.storage.removeItem("userInfo");
+ 	}
  }

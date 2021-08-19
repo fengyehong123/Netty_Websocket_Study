@@ -149,7 +149,9 @@
 			"imooc-me.html": {
 				"resources": [],
 				"refer": [
-					"myface.html"
+					"myface.html",
+					"mynickname.html",
+					"myQRCode.html"
 				],
 				"priority": 0
 			},

@@ -9,7 +9,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.imooc.enums.SearchFriendsStatusEnum;
+import com.imooc.mapper.MyFriendsMapper;
 import com.imooc.mapper.UsersMapper;
+import com.imooc.pojo.MyFriends;
 import com.imooc.pojo.Users;
 import com.imooc.service.UserService;
 import com.imooc.utils.FastDFSClient;
@@ -24,6 +27,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private UsersMapper userMapper;
+	
+	@Autowired
+	private MyFriendsMapper myFriendsMapper;
 	
 	// 注入二维码生成的工具类
 	@Autowired
@@ -109,5 +115,46 @@ public class UserServiceImpl implements UserService {
 	@Transactional(propagation = Propagation.SUPPORTS)
 	private Users queryUserById(String userId) {
 		return userMapper.selectByPrimaryKey(userId);
+	}
+
+	@Transactional(propagation = Propagation.SUPPORTS)
+	@Override
+	public Integer preconditionSearchFriends(String myUserId, String friendUsername) {
+		
+		// 查询朋友用户是否存在
+		Users user = queryUserInfoByUsername(friendUsername);
+		
+		// 搜索的用户如果不存在,返回[无此用户]
+		if (user == null) {
+			return SearchFriendsStatusEnum.USER_NOT_EXIST.status;
+		}
+		
+		// 搜索的账号是自己,返回[不能添加自己]
+		if (user.getId().equals(myUserId)) {
+			return SearchFriendsStatusEnum.NOT_YOURSELF.status;
+		}
+		
+		// 搜索的朋友已经是自己的好友,返回[该用户已经是你的好友]
+		Example mfe = new Example(MyFriends.class);
+		Criteria mf = mfe.createCriteria();
+		mf.andEqualTo("myUserId", myUserId);
+		mf.andEqualTo("myFriendUserId", user.getId());
+		
+		MyFriends myFriendsRel = myFriendsMapper.selectOneByExample(mfe);
+		if (myFriendsRel != null) {
+			return SearchFriendsStatusEnum.ALREADY_FRIENDS.status;
+		}
+		
+		// 返回成功,可以进行好友添加
+		return SearchFriendsStatusEnum.SUCCESS.status;
+	}
+	
+	public Users queryUserInfoByUsername(String username) {
+		
+		Example userExample = new Example(Users.class);
+		Criteria createCriteria = userExample.createCriteria();
+		createCriteria.andEqualTo("username", username);
+		
+		return userMapper.selectOneByExample(userExample);
 	}
 }

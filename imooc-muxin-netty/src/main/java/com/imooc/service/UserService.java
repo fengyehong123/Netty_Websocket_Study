@@ -15,4 +15,7 @@ public interface UserService {
 	
 	// 修改用户的信息
 	public Users updateUserInfo(Users user);
+	
+	// 搜索朋友的前置条件
+	public Integer preconditionSearchFriends(String myUserId, String friendUsername);
 }

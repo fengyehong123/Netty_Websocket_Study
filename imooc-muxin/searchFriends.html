@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<link href="css/mui.min.css" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css" href="css/header.css" />
+</head>
+
+<body>
+	<!--带返回箭头的header-->
+	<header class="mui-bar mui-bar-nav title">
+	    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" style="color: white;"></a>
+	    <a id="link_submit_search" class="mui-icon mui-icon-right-nav mui-pull-right"
+	    	style="color: white;font-size: 14px;line-height: 25px;">搜索</a>
+	    <h1 class="mui-title title-color">添加朋友</h1>
+	</header>
+	
+	<!--图片区域-->
+	<div class="mui-content">
+		<div class="mui-input-row">
+		    <input id="txt_your_friend_username" type="text" class="mui-input-speech mui-input-clear" placeholder="搜索朋友">
+		</div>
+		
+	</div>
+	
+</body>
+<script src="js/mui.min.js"></script>
+<script src="js/app.js"></script>
+<script type="text/javascript">
+	mui.init();
+	
+	mui.plusReady(function() {
+		// 获取全局对象
+		let user = app.getUserGlobalInfo();
+		// 获取搜索朋友对象
+		let txt_your_friend_username = document.getElementById("txt_your_friend_username");
+		
+		// 提交事件,搜索朋友
+		const link_submit_search = document.getElementById("link_submit_search");
+		link_submit_search.addEventListener("tap", function() {
+			// 获取用户输入的用户名
+			let yourFriendUsername = txt_your_friend_username.value;
+			
+			plus.nativeUI.showWaiting("请稍等...");
+			mui.ajax(app.serverUrl + "/u/search?myUserId=" + user.id +
+									"&friendUsername=" + yourFriendUsername,{
+				// 通过url传参,因此不需要json格式的数据
+				data:{},
+				dataType:'json',//服务器返回json格式数据
+				type:'post',//HTTP请求类型
+				timeout:10000,//超时时间设置为10秒；
+				headers:{'Content-Type':'application/json'},
+				// 服务器成功响应之后的处理
+				success:function(data){
+					
+					plus.nativeUI.closeWaiting();
+					
+					if(data.status == 200) {
+						mui.openWindow({
+							url: "searchFriendsResult.html",
+							id: "searchFriendsResult.html",
+							styles: {},
+							// 用于页面跳转的时候,页面间互相传值的时候使用
+							extras: {
+								willBeFriend: data.data,
+							}
+						});
+					} else {
+						// 当登录失败的时候,通过弹窗展示失败提示信息
+						app.showToast(data.msg, "error");
+					}
+				},
+				// 异常处理
+				error:function(xhr,type,errorThrown){
+					console.log(type);
+					console.log(errorThrown);
+					console.log(xhr);
+				}
+			});
+		})
+	});
+</script>
+</html>

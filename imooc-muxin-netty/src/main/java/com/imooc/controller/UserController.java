@@ -154,13 +154,46 @@ public class UserController {
 		 */
 		Integer status = userservice.preconditionSearchFriends(myUserId, friendUsername);
 		if (status == SearchFriendsStatusEnum.SUCCESS.status) {
+			Users users = userservice.queryUserInfoByUsername(friendUsername);
 			
+			UsersVO usersVO = new UsersVO();
+			BeanUtils.copyProperties(users, usersVO);
+			
+			return IMoocJSONResult.ok(usersVO);
+		} else {
+			String errorMsg = SearchFriendsStatusEnum.getMsgByKey(status);
+			return IMoocJSONResult.errorMsg(errorMsg);
+		}	
+	}
+	
+	/**
+	 * 发送添加好友的请求
+	 * @param userBo
+	 * @return
+	 * @throws Exception
+	 */
+	@PostMapping("/addFriendRequest")
+	public IMoocJSONResult addFriendRequest(String myUserId, String friendUsername) throws Exception {
+		
+		// 判断myUserId和friendUsername不能为空
+		if (StringUtils.isBlank(myUserId) || StringUtils.isBlank(friendUsername)) {
+			return IMoocJSONResult.errorMsg("");
+		}
+		
+		/**
+		 * 前置条件
+		 * 1.搜索的用户如果不存在,返回[无此用户]
+		 * 2.搜索的账号是自己,返回[不能添加自己]
+		 * 3.搜索的朋友已经是自己的好友,返回[该用户已经是你的好友]
+		 */
+		Integer status = userservice.preconditionSearchFriends(myUserId, friendUsername);
+		if (status == SearchFriendsStatusEnum.SUCCESS.status) {
+			userservice.sendFriendRequest(myUserId, friendUsername);
 		} else {
 			String errorMsg = SearchFriendsStatusEnum.getMsgByKey(status);
 			return IMoocJSONResult.errorMsg(errorMsg);
 		}
 		
-		
-		return IMoocJSONResult.ok(null);
+		return IMoocJSONResult.ok();
 	}
 }

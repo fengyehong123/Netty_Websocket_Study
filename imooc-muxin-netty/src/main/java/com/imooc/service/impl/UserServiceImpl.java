@@ -1,6 +1,7 @@
 package com.imooc.service.impl;
 
 import java.io.IOException;
+import java.util.Date;
 
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.imooc.enums.SearchFriendsStatusEnum;
+import com.imooc.mapper.FriendsRequestMapper;
 import com.imooc.mapper.MyFriendsMapper;
 import com.imooc.mapper.UsersMapper;
+import com.imooc.pojo.FriendsRequest;
 import com.imooc.pojo.MyFriends;
 import com.imooc.pojo.Users;
 import com.imooc.service.UserService;
@@ -30,6 +33,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private MyFriendsMapper myFriendsMapper;
+	
+	@Autowired
+	private FriendsRequestMapper friendsRequestMapper;
 	
 	// 注入二维码生成的工具类
 	@Autowired
@@ -149,6 +155,9 @@ public class UserServiceImpl implements UserService {
 		return SearchFriendsStatusEnum.SUCCESS.status;
 	}
 	
+	// 根据用户名查询用户对象
+	@Transactional(propagation = Propagation.SUPPORTS)
+	@Override
 	public Users queryUserInfoByUsername(String username) {
 		
 		Example userExample = new Example(Users.class);
@@ -156,5 +165,33 @@ public class UserServiceImpl implements UserService {
 		createCriteria.andEqualTo("username", username);
 		
 		return userMapper.selectOneByExample(userExample);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public void sendFriendRequest(String myUserId, String friendUsername) {
+		
+		// 查询要添加的好友的信息对象
+		Users friend = this.queryUserInfoByUsername(friendUsername);
+		
+		// 查询发送好友请求记录表
+		Example friendsRequestExample = new Example(FriendsRequest.class);
+		Criteria createCriteria = friendsRequestExample.createCriteria();
+		createCriteria.andEqualTo("sendUserId", myUserId);
+		createCriteria.andEqualTo("acceptUserId", friend.getId());
+		
+		FriendsRequest friendRequest = friendsRequestMapper.selectOneByExample(friendsRequestExample);
+		if (friendRequest == null) {
+			
+			// 如果不是登录用户的好友,并且好友记录没有添加,则新增好友请求记录
+			FriendsRequest request = new FriendsRequest();
+			String requestId = sid.nextShort();
+			request.setId(requestId);
+			request.setSendUserId(myUserId);
+			request.setAcceptUserId(friend.getId());
+			request.setRequestDateTime(new Date());
+			
+			friendsRequestMapper.insert(request);
+		}
 	}
 }

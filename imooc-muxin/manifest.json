@@ -161,6 +161,20 @@
 					"plugin/v3.1.6/myface-uploader.html"
 				],
 				"priority": 0
+			},
+			"imooc-discover.html": {
+				"resources": [],
+				"refer": [
+					"searchFriends.html"
+				],
+				"priority": 0
+			},
+			"searchFriends.html": {
+				"resources": [],
+				"refer": [
+					"searchFriendsResult.html"
+				],
+				"priority": 0
 			}
 		},
 		"idle": {

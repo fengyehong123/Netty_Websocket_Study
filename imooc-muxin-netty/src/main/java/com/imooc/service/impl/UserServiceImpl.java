@@ -2,6 +2,7 @@ package com.imooc.service.impl;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import org.n3r.idworker.Sid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,11 @@ import com.imooc.enums.SearchFriendsStatusEnum;
 import com.imooc.mapper.FriendsRequestMapper;
 import com.imooc.mapper.MyFriendsMapper;
 import com.imooc.mapper.UsersMapper;
+import com.imooc.mapper.UsersMapperCustom;
 import com.imooc.pojo.FriendsRequest;
 import com.imooc.pojo.MyFriends;
 import com.imooc.pojo.Users;
+import com.imooc.pojo.vo.FriendRequestVO;
 import com.imooc.service.UserService;
 import com.imooc.utils.FastDFSClient;
 import com.imooc.utils.FileUtils;
@@ -30,6 +33,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Autowired
 	private UsersMapper userMapper;
+	
+	@Autowired
+	private UsersMapperCustom userMapperCustom;
 	
 	@Autowired
 	private MyFriendsMapper myFriendsMapper;
@@ -193,5 +199,12 @@ public class UserServiceImpl implements UserService {
 			
 			friendsRequestMapper.insert(request);
 		}
+	}
+
+	@Transactional(propagation = Propagation.SUPPORTS)
+	@Override
+	public List<FriendRequestVO> queryFriendRequestList(String acceptUserId) {
+		
+		return userMapperCustom.queryFriendRequestList(acceptUserId);
 	}
 }

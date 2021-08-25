@@ -1,20 +1,136 @@
 <!doctype html>
 <html>
-
 	<head>
 		<meta charset="UTF-8">
 		<title></title>
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
 		<link href="css/mui.min.css" rel="stylesheet" />
+		<style>
+			html,
+			body {
+				height: 100%;
+			}
+			
+			.mui-content {
+				height: 100%;
+				overflow: auto;
+			}
+			
+			.red-point{
+	          position: relative;
+	        }
+	
+	        .red-point::before{
+	          content: " ";
+	          border: 5px solid #C9394A;/*设置红色*/
+	          border-radius:5px;/*设置圆角*/
+	          position: absolute;
+	          z-index: 3000;
+	          right: 0%;
+	          margin-right: -10px;
+	          margin-top: 0px;
+	        }
+		</style>
 	</head>
 
 	<body>
 		
-		<h1>聊天记录</h1>
+		<div class="mui-content">
+			<ul class="mui-table-view" id="ul_friend_request_list" style="margin-bottom: 10px;">
+				
+			</ul>
+			
+			<ul id="ul_chatSnapshot" class="mui-table-view">
+				
+			</ul>
+		</div>
+		
+		
+		
 		
 		<script src="js/mui.min.js"></script>
+		<script src="js/app.js"></script>
 		<script type="text/javascript">
 			mui.init()
+			
+			mui.plusReady(function() {
+				
+				// 获取用户全局对象
+				var user = app.getUserGlobalInfo();
+				
+				// 加载好友请求记录
+				// 获取当前的webView对象
+				let thisWebview = plus.webview.currentWebview();
+				// 当前webview对象监听show事件,当进入当前页面的时候,就触发下面的回调函数
+				thisWebview.addEventListener("show", function() {
+					// 加载朋友添加请求
+					loadingFriendRequests();
+				});
+				
+				// 加载好友添加请求
+				function loadingFriendRequests() {
+					// 获取用户全局对象
+					var user = app.getUserGlobalInfo();
+					mui.ajax(app.serverUrl + "/u/queryFriendRequests?userId=" + user.id , {
+						data: {},
+						dataType: 'json',,
+						type: 'post',
+						timeout: 1000,
+						headers: {'Content-Type': 'application/json'},
+						success: function(data) {
+							// 服务器返回相应
+							console.log(JSON.stringify(data.data));
+							
+							if(data.status = 200)  {
+								
+								// 获取好友请求展示的DOM对象
+								let ul_friend_request_list = document.getElementById("ul_friend_request_list");
+								
+								// 获取朋友请求列表数据
+								let friendRequestList = data.data;
+								if(friendRequestList != null && friendRequestList.length > 0) {
+									let requestHtml = "";
+									// 获取好友添加信息,进行拼接
+									for(const [index, item] of friendRequestList.entries()){
+										requestHtml += renderFriendRequests(item);
+									};
+									// 将拼接好的信息添加到页面上
+									ul_friend_request_list.innerHTML = requestHtml;
+								}else {
+									
+									ul_friend_request_list.innerHTML = "";
+								}
+							} else {
+								console.log("请求失败");
+							}
+						}
+					})
+				}
+			});
+			
+			// 渲染好友添加的HTML代码
+			function renderFriendRequests(friend) {
+				let html = `
+					<li class="btnOper mui-table-view-cell mui-media">
+						<a href="javascript:;">
+							<img class="mui-media-object mui-pull-left" src="${app.imageServerUrl}${friend.sendFaceImage}">
+							<span id="span_nickname" class="mui-pull-right">
+								<button friendId="${friend.sendUserId}" type="button" class="ignoreRequest mui-btn mui-btn-grey"
+								style="padding: 4px 10px;margin-right:5px;">忽略</button>
+								<button friendId="${friend.sendUserId}" type="button" class="passRequest mui-btn mui-btn-danger" 
+								style="padding: 4px 10px;">通过</button>
+							</span>
+							<div class="mui-media-body">
+								<label>${friend.sendNickname}</label>
+								<p class="mui-ellipsis">请求添加你为朋友</p>
+							</div>
+						</a>
+					</li>
+				`;
+				
+				// 拼接html
+				return html;
+			}
 		</script>
 	</body>
 

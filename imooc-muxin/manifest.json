@@ -151,7 +151,8 @@
 				"refer": [
 					"myface.html",
 					"mynickname.html",
-					"myQRCode.html"
+					"myQRCode.html",
+					"login.html"
 				],
 				"priority": 0
 			},

@@ -73,7 +73,7 @@
 					var user = app.getUserGlobalInfo();
 					mui.ajax(app.serverUrl + "/u/queryFriendRequests?userId=" + user.id , {
 						data: {},
-						dataType: 'json',,
+						dataType: 'json',
 						type: 'post',
 						timeout: 1000,
 						headers: {'Content-Type': 'application/json'},
@@ -96,6 +96,18 @@
 									};
 									// 将拼接好的信息添加到页面上
 									ul_friend_request_list.innerHTML = requestHtml;
+									
+									// 动态对忽略和通过按钮进行动态事件绑定(和JQuery使用方式类似)   
+									mui(".btnOper").on("tap", ".ignoreRequest", function() {
+										// 获取我们在标签上自定义的friendId属性
+										const friendId = this.getAttribute("friendId");
+										// 参数3是操作的类型,0代表忽略,1代表通过.该操作类型是我们自己定义的
+										operatorFriendRequest(user.id, friendId, 0);
+									});
+									
+									mui(".btnOper").on("tap", ".passRequest", function() {
+										operatorFriendRequest(user.id, friendId, 1);
+									});
 								}else {
 									
 									ul_friend_request_list.innerHTML = "";
@@ -107,6 +119,11 @@
 					})
 				}
 			});
+			
+			// 操作来自好友添加的请求
+			function operatorFriendRequest(userId, friendId, operType) {
+				
+			}
 			
 			// 渲染好友添加的HTML代码
 			function renderFriendRequests(friend) {

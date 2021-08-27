@@ -20,6 +20,7 @@ import com.imooc.pojo.FriendsRequest;
 import com.imooc.pojo.MyFriends;
 import com.imooc.pojo.Users;
 import com.imooc.pojo.vo.FriendRequestVO;
+import com.imooc.pojo.vo.MyFriendsVO;
 import com.imooc.service.UserService;
 import com.imooc.utils.FastDFSClient;
 import com.imooc.utils.FileUtils;
@@ -206,5 +207,49 @@ public class UserServiceImpl implements UserService {
 	public List<FriendRequestVO> queryFriendRequestList(String acceptUserId) {
 		
 		return userMapperCustom.queryFriendRequestList(acceptUserId);
+	}
+	
+	// 忽略好友的添加请求
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public void deleteFriendRequest(String sendUserId, String acceptUserId) {
+		Example fre = new Example(FriendsRequest.class);
+		Criteria frc = fre.createCriteria();
+		frc.andEqualTo("sendUserId", sendUserId);
+		frc.andEqualTo("acceptUserId", acceptUserId);
+		friendsRequestMapper.deleteByExample(fre);
+	}
+
+	// 通过好友的添加请求
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Override
+	public void passFriendRequest(String sendUserId, String acceptUserId) {
+		
+		// 通过好友的添加请求是双方面的,也就是既要通过他是我的好友,也要通过我是对方的好友
+		// 所有调用了两遍saveFriends请求
+		this.saveFriends(sendUserId, acceptUserId);
+		this.saveFriends(acceptUserId, sendUserId);
+		
+		// 好友关系保存到数据库之后,好友请求就没有用了,因此需要删除
+		this.deleteFriendRequest(sendUserId, acceptUserId);
+	}
+	
+	// 将好友的关系保存到数据库
+	@Transactional(propagation = Propagation.REQUIRED)
+	private void saveFriends(String sendUserId, String acceptUserId) {
+		MyFriends myFriends = new MyFriends();
+		String recordId = sid.nextShort();
+		myFriends.setId(recordId);
+		myFriends.setMyFriendUserId(acceptUserId);
+		myFriends.setMyUserId(sendUserId);
+		myFriendsMapper.insert(myFriends);
+	}
+	
+	// 查询我的好友
+	@Transactional(propagation = Propagation.SUPPORTS)
+	@Override
+	public List<MyFriendsVO> queryMyFriends(String userId) {
+		List<MyFriendsVO> myFirends = userMapperCustom.queryMyFriends(userId);
+		return myFirends;
 	}
 }

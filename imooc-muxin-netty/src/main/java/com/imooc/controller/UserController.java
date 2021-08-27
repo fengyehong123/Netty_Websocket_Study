@@ -1,5 +1,7 @@
 package com.imooc.controller;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.imooc.enums.OperatorFriendRequestTypeEnum;
 import com.imooc.enums.SearchFriendsStatusEnum;
 import com.imooc.pojo.Users;
 import com.imooc.pojo.bo.UsersBO;
+import com.imooc.pojo.vo.MyFriendsVO;
 import com.imooc.pojo.vo.UsersVO;
 import com.imooc.service.UserService;
 import com.imooc.utils.FastDFSClient;
@@ -93,8 +97,14 @@ public class UserController {
 		
 		// 将前端传入的图片传入到FastDFS服务器
 		MultipartFile faceFile = FileUtils.fileToMultipart(userFacePath);
-		// 获取上传成功之后的url(大图)
-		String url = fastDFSClient.uploadFace(faceFile);
+		String url = "";
+		try {
+			// 获取上传成功之后的url(大图)
+			url = fastDFSClient.uploadFace(faceFile);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		
 		
 		// 获取图片的url
 		System.out.println(url);
@@ -212,5 +222,42 @@ public class UserController {
 		
 		// 1. 查询用户接受到的朋友申请
 		return IMoocJSONResult.ok(userservice.queryFriendRequestList(userId));
+	}
+	
+	/**
+	 * 接受方 通过或者忽略朋友请求
+	 * @param acceptUserId
+	 * @param sendUserId
+	 * @param operType
+	 * @return
+	 */
+	@PostMapping("/operFriendRequest")
+	public IMoocJSONResult operFriendRequest(String acceptUserId, String sendUserId, Integer operType) {
+		
+		// 0. acceptUserId sendUserId operType 判断不能为空
+		if (StringUtils.isBlank(acceptUserId) 
+				|| StringUtils.isBlank(sendUserId) 
+				|| operType == null) {
+			return IMoocJSONResult.errorMsg("");
+		}
+		
+		// 1. 如果operType 没有对应的枚举值，则直接抛出空错误信息
+		if (StringUtils.isBlank(OperatorFriendRequestTypeEnum.getMsgByType(operType))) {
+			return IMoocJSONResult.errorMsg("");
+		}
+		
+		if (operType == OperatorFriendRequestTypeEnum.IGNORE.type) {
+			// 2. 判断如果忽略好友请求，则直接删除好友请求的数据库表记录
+			userservice.deleteFriendRequest(sendUserId, acceptUserId);
+		} else if (operType == OperatorFriendRequestTypeEnum.PASS.type) {
+			// 3. 判断如果是通过好友请求，则互相增加好友记录到数据库对应的表
+			//	   然后删除好友请求的数据库表记录
+			userservice.passFriendRequest(sendUserId, acceptUserId);
+		}
+		
+		// 4. 数据库查询好友列表
+		List<MyFriendsVO> myFirends = userservice.queryMyFriends(acceptUserId);
+		
+		return IMoocJSONResult.ok(myFirends);
 	}
 }

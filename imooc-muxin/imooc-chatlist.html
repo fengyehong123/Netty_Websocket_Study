@@ -67,62 +67,92 @@
 					loadingFriendRequests();
 				});
 				
-				// 加载好友添加请求
-				function loadingFriendRequests() {
-					// 获取用户全局对象
-					var user = app.getUserGlobalInfo();
-					mui.ajax(app.serverUrl + "/u/queryFriendRequests?userId=" + user.id , {
-						data: {},
-						dataType: 'json',
-						type: 'post',
-						timeout: 1000,
-						headers: {'Content-Type': 'application/json'},
-						success: function(data) {
-							// 服务器返回相应
-							console.log(JSON.stringify(data.data));
-							
-							if(data.status = 200)  {
-								
-								// 获取好友请求展示的DOM对象
-								let ul_friend_request_list = document.getElementById("ul_friend_request_list");
-								
-								// 获取朋友请求列表数据
-								let friendRequestList = data.data;
-								if(friendRequestList != null && friendRequestList.length > 0) {
-									let requestHtml = "";
-									// 获取好友添加信息,进行拼接
-									for(const [index, item] of friendRequestList.entries()){
-										requestHtml += renderFriendRequests(item);
-									};
-									// 将拼接好的信息添加到页面上
-									ul_friend_request_list.innerHTML = requestHtml;
-									
-									// 动态对忽略和通过按钮进行动态事件绑定(和JQuery使用方式类似)   
-									mui(".btnOper").on("tap", ".ignoreRequest", function() {
-										// 获取我们在标签上自定义的friendId属性
-										const friendId = this.getAttribute("friendId");
-										// 参数3是操作的类型,0代表忽略,1代表通过.该操作类型是我们自己定义的
-										operatorFriendRequest(user.id, friendId, 0);
-									});
-									
-									mui(".btnOper").on("tap", ".passRequest", function() {
-										operatorFriendRequest(user.id, friendId, 1);
-									});
-								}else {
-									
-									ul_friend_request_list.innerHTML = "";
-								}
-							} else {
-								console.log("请求失败");
-							}
-						}
-					})
-				}
+				// 添加自定义事件,刷新加载好友的添加请求
+				window.addEventListener("refresh", function() {
+					loadingFriendRequests();
+				})
 			});
+			
+			// 加载好友添加请求
+			function loadingFriendRequests() {
+				// 获取用户全局对象
+				var user = app.getUserGlobalInfo();
+				mui.ajax(app.serverUrl + "/u/queryFriendRequests?userId=" + user.id , {
+					data: {},
+					dataType: 'json',
+					type: 'post',
+					timeout: 1000,
+					headers: {'Content-Type': 'application/json'},
+					success: function(data) {
+						// 服务器返回相应
+						console.log(JSON.stringify(data.data));
+						
+						if(data.status = 200)  {
+							
+							// 获取好友请求展示的DOM对象
+							let ul_friend_request_list = document.getElementById("ul_friend_request_list");
+							
+							// 获取朋友请求列表数据
+							let friendRequestList = data.data;
+							if(friendRequestList != null && friendRequestList.length > 0) {
+								let requestHtml = "";
+								// 获取好友添加信息,进行拼接
+								for(const [index, item] of friendRequestList.entries()){
+									requestHtml += renderFriendRequests(item);
+								};
+								// 将拼接好的信息添加到页面上
+								ul_friend_request_list.innerHTML = requestHtml;
+								
+								// 动态对忽略和通过按钮进行动态事件绑定(和JQuery使用方式类似)   
+								mui(".btnOper").on("tap", ".ignoreRequest", function() {
+									// 获取我们在标签上自定义的friendId属性
+									const friendId = this.getAttribute("friendId");
+									// 参数3是操作的类型,0代表忽略,1代表通过.该操作类型是我们自己定义的
+									operatorFriendRequest(user.id, friendId, 0);
+								});
+								
+								mui(".btnOper").on("tap", ".passRequest", function() {
+									// 获取我们在标签上自定义的friendId属性
+									const friendId = this.getAttribute("friendId");
+									operatorFriendRequest(user.id, friendId, 1);
+								});
+							}else {
+								
+								ul_friend_request_list.innerHTML = "";
+							}
+						} else {
+							console.log("请求失败");
+						}
+					}
+				})
+			}
 			
 			// 操作来自好友添加的请求
 			function operatorFriendRequest(userId, friendId, operType) {
 				
+				// 构造一个查询字符串
+				const params = new URLSearchParams();
+				params.set("acceptUserId", userId);
+				params.set("sendUserId", friendId);
+				params.set("operType", operType);
+				
+				// acceptUserId=${userId}&sendUserId=${friendId}&operType=${operType}
+				// 使用查询字符串
+				mui.ajax(app.serverUrl + `/u/operFriendRequest?${params.toString()}`, {
+					data: {},
+					dataType: 'json',
+					type: 'post',
+					timeout: 1000,
+					headers: {'Content-Type': 'application/json'},
+					success: function(data) {
+						if(data.status = 200) {
+							// 当用户操作完好友添加请求之后,重新调用一遍加载朋友请求的方法,重新渲染页面
+							loadingFriendRequests();
+						} else {
+							console.log("请求失败");
+						}
+					}
+				})
 			}
 			
 			// 渲染好友添加的HTML代码

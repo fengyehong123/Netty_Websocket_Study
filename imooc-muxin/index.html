@@ -116,6 +116,20 @@
 				}
 			}
 		})
+		
+		// 设置延时加载
+		setTimeout("initData()", "1000");
 	})
+	
+	// 预加载
+	function initData() {
+		// 获取聊天页面的webview对象
+		let imooc_chatlist = plus.webview.getWebviewById("imooc-chatlist.html");
+		// 触发该webview的自定义事件
+		mui.fire(imooc_chatlist, "refresh");
+		
+		let imooc_me = plus.webview.getWebviewById("imooc-me.html");
+		mui.fire(imooc_me, "refresh");
+	}
 </script>
 </html>

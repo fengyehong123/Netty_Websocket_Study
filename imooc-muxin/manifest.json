@@ -166,7 +166,8 @@
 			"imooc-discover.html": {
 				"resources": [],
 				"refer": [
-					"searchFriends.html"
+					"searchFriends.html",
+					"scanme.html"
 				],
 				"priority": 0
 			},
